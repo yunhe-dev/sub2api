@@ -30,6 +30,17 @@ func TestLoadForBootstrapAllowsMissingJWTSecret(t *testing.T) {
 	}
 }
 
+func TestLoadAllowsEmptyPricingEnvOverrides(t *testing.T) {
+	resetViperWithJWTSecret(t)
+	t.Setenv("PRICING_REMOTE_URL", "")
+	t.Setenv("PRICING_HASH_URL", "")
+
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Empty(t, cfg.Pricing.RemoteURL)
+	require.Empty(t, cfg.Pricing.HashURL)
+}
+
 func TestNormalizeRunMode(t *testing.T) {
 	tests := []struct {
 		input    string

@@ -1216,6 +1216,7 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 	viper.AddConfigPath("/etc/sub2api")
 
 	// 环境变量支持
+	viper.AllowEmptyEnv(true)
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
