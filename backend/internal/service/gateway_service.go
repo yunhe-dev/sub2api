@@ -6010,9 +6010,6 @@ func (s *GatewayService) buildUpstreamRequest(ctx context.Context, c *gin.Contex
 	// 设置认证头（保持原始大小写）
 	if tokenType == "oauth" {
 		setHeaderRaw(req.Header, "authorization", "Bearer "+token)
-	} else if account.Type == AccountTypeAPIKey && strings.TrimRight(account.GetBaseURL(), "/") != "https://api.anthropic.com" {
-		// 非官方 Anthropic 兼容上游（如 VLLM）通常不支持 x-api-key。
-		setHeaderRaw(req.Header, "authorization", "Bearer "+token)
 	} else {
 		setHeaderRaw(req.Header, "x-api-key", token)
 	}

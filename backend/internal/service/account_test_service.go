@@ -232,8 +232,8 @@ func (s *AccountTestService) testClaudeAccountConnection(c *gin.Context, account
 			return s.sendErrorAndEnd(c, "No access token available")
 		}
 	} else if account.Type == "apikey" {
-		// API Key - official Anthropic uses x-api-key; compatible upstreams use Bearer.
-		useBearer = strings.TrimRight(account.GetBaseURL(), "/") != "https://api.anthropic.com"
+		// API Key - use x-api-key header
+		useBearer = false
 		authToken = account.GetCredential("api_key")
 		if authToken == "" {
 			return s.sendErrorAndEnd(c, "No API key available")
