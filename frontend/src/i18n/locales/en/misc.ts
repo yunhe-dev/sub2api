@@ -61,14 +61,78 @@ export default {
 
   // Recharge / Subscription Page
   purchase: {
-    title: 'Recharge / Subscription',
-    description: 'Recharge balance or purchase subscription via the embedded page',
     openInNewTab: 'Open in new tab',
-    notEnabledTitle: 'Feature not enabled',
-    notEnabledDesc: 'The administrator has not enabled the recharge/subscription entry. Please contact admin.',
     notConfiguredTitle: 'Recharge / Subscription URL not configured',
-    notConfiguredDesc:
-      'The administrator enabled the entry but has not configured a recharge/subscription URL. Please contact admin.'
+    notConfiguredDesc: 'The administrator enabled the entry but has not configured a recharge/subscription URL. Please contact admin.',
+    title: 'Subscription Purchase',
+    heading: 'Choose the plan that fits your workflow',
+    description: 'Purchase subscription groups from the dynamic catalog currently listed on this site.',
+    phaseOneNotice: 'Real EPay checkout will be connected in the next phase. This step is for validating the catalog UI.',
+    subscriptionBannerTitle: 'Subscription plans',
+    subscriptionBannerDesc:
+      'Each plan bundles quota and benefits for a fixed billing period—predictable budgets for coding, OpenClaw, and steady usage. Complements pay-as-you-go top-ups.',
+    subscriptionBannerBadge: 'Period quota',
+    failedToLoadProducts: 'Failed to load purchasable products',
+    failedToCreateOrder: 'Failed to create order',
+    emptyProducts: 'No direct-purchase plans are available right now. Please use the custom option below.',
+    notEnabledTitle: 'Feature not enabled',
+    notEnabledDesc: 'The administrator has not enabled the purchase entry. Please contact admin.',
+    dialog: {
+      title: 'Purchase Subscription Plan',
+      subtitle: 'Review the plan details and choose a payment method to continue.',
+      openCta: 'Subscribe Now',
+      submit: 'Pay Now',
+      paymentLabel: 'Choose payment method:',
+      selectPlaceholder: 'Select a payment method',
+      validityUnitDays: 'days',
+      notAvailable: 'Not available',
+      resetPeriod: {
+        day: 'Daily',
+        week: 'Weekly',
+        month: 'Monthly'
+      },
+      fields: {
+        name: 'Plan Name:',
+        validity: 'Validity:',
+        resetPeriod: 'Reset Period:',
+        dailyQuota: 'Daily Quota:',
+        benefits: 'Benefits:',
+        total: 'Total Due:'
+      }
+    },
+    methods: {
+      alipay: 'Alipay',
+      wechat: 'WeChat Pay',
+      points: 'Points Exchange'
+    },
+    points: {
+      available: 'Available Points:',
+      enough: '{points} points required, ready to exchange',
+      short: '{required} points required, {short} more needed',
+      exchangeSuccess: 'Points exchange completed',
+      tooltipUsage: 'Points can be used to exchange subscription plans directly at a 1 point = 1 CNY rate.',
+      tooltipSource: 'Invite friends to register and earn a 20% points reward after they complete their first paid order.'
+    },
+    period: {
+      day: '/day',
+      week: '/week',
+      month: '/month',
+      quarter: '/quarter',
+      year: '/year',
+      days: '/{days} days'
+    },
+    badges: {
+      popular: 'Most Popular',
+      enterprise: 'Enterprise'
+    },
+    custom: {
+      title: 'Custom',
+      heading: 'Contact for details',
+      featureOne: 'Custom SLA support',
+      featureTwo: 'Custom quota and validity windows',
+      featureThree: 'Dedicated technical support',
+      cta: 'Email for details'
+    }
   },
 
   // Custom Page (iframe embed)
@@ -619,3 +683,4 @@ export default {
   },
 
 }
+

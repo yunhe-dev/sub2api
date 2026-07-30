@@ -1,645 +1,1027 @@
 <template>
-  <!-- Custom Home Content: Full Page Mode -->
   <div v-if="homeContent" class="min-h-screen">
-    <!-- iframe mode -->
     <iframe
       v-if="isHomeContentUrl"
       :src="homeContent.trim()"
       class="h-screen w-full border-0"
       allowfullscreen
     ></iframe>
-    <!-- HTML mode - SECURITY: homeContent is admin-only setting, XSS risk is acceptable -->
     <div v-else v-html="homeContent"></div>
   </div>
 
-  <!-- Default Home Page -->
   <div
     v-else
-    class="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
+    class="relative min-h-screen overflow-hidden bg-[#f8f2e8] text-slate-900 dark:bg-[#130d0f] dark:text-white"
   >
-    <!-- Background Decorations -->
-    <div class="pointer-events-none absolute inset-0 overflow-hidden">
-      <div
-        class="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-primary-400/20 blur-3xl"
-      ></div>
-      <div
-        class="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-primary-500/15 blur-3xl"
-      ></div>
-      <div
-        class="absolute left-1/3 top-1/4 h-72 w-72 rounded-full bg-primary-300/10 blur-3xl"
-      ></div>
-      <div
-        class="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-primary-400/10 blur-3xl"
-      ></div>
-      <div
-        class="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(20,184,166,0.03)_1px,transparent_1px)] bg-[size:64px_64px]"
-      ></div>
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(circle_at_top,rgba(229,93,43,0.18),transparent_60%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,130,76,0.16),transparent_55%)]"></div>
+      <div class="absolute right-[-12rem] top-24 h-[28rem] w-[28rem] rounded-full bg-[#ffb085]/35 blur-3xl dark:bg-[#8a3322]/35"></div>
+      <div class="absolute left-[-8rem] top-[28rem] h-[24rem] w-[24rem] rounded-full bg-[#ffe1bf]/85 blur-3xl dark:bg-[#4a1f17]/55"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:44px_44px] dark:bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)]"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,242,232,0)_0%,rgba(248,242,232,0.92)_78%,#f8f2e8_100%)] dark:bg-[linear-gradient(180deg,rgba(19,13,15,0)_0%,rgba(19,13,15,0.92)_72%,#130d0f_100%)]"></div>
     </div>
 
-    <!-- Header -->
-    <header class="relative z-20 px-6 py-4">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between">
-        <!-- Logo -->
-        <div class="flex items-center">
-          <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
-            <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
+    <SiteHeader />
+
+    <main class="relative z-10 px-6 pb-16 pt-6 sm:pb-24 sm:pt-8">
+      <section class="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl items-center">
+        <div class="grid w-full gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)] lg:items-center">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 rounded-full border border-[#f3c7aa] bg-white/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#b6542e] shadow-sm dark:border-[#ff9c66]/20 dark:bg-[#ff9c66]/10 dark:text-[#ffd8bf]">
+            <Icon name="sparkles" size="sm" />
+            {{ t('home.hero.eyebrow') }}
           </div>
-        </div>
 
-        <!-- Nav Actions -->
-        <div class="flex items-center gap-3">
-          <!-- Language Switcher -->
-          <LocaleSwitcher />
-
-          <!-- Doc Link -->
-          <a
-            v-if="docUrl"
-            :href="docUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
-            :title="t('home.viewDocs')"
-          >
-            <Icon name="book" size="md" />
-          </a>
-
-          <!-- Theme Toggle -->
-          <button
-            @click="toggleTheme"
-            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
-            :title="isDark ? t('home.switchToLight') : t('home.switchToDark')"
-          >
-            <Icon v-if="isDark" name="sun" size="md" />
-            <Icon v-else name="moon" size="md" />
-          </button>
-
-          <!-- Login / Dashboard Button -->
-          <router-link
-            v-if="isAuthenticated"
-            :to="dashboardPath"
-            class="inline-flex items-center gap-1.5 rounded-full bg-gray-900 py-1 pl-1 pr-2.5 transition-colors hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700"
-          >
-            <span
-              class="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-[10px] font-semibold text-white"
-            >
-              {{ userInitial }}
+          <h1 class="mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
+            {{ t('home.hero.titleLead') }}
+            <span class="block bg-[linear-gradient(135deg,#1a1311_5%,#c4512d_55%,#ff9c66_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(135deg,#ffffff_5%,#ffb181_58%,#ffd6ad_100%)]">
+              {{ t('home.hero.titleAccent') }}
             </span>
-            <span class="text-xs font-medium text-white">{{ t('home.dashboard') }}</span>
-            <svg
-              class="h-3 w-3 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-              />
-            </svg>
-          </router-link>
-          <router-link
-            v-else
-            to="/login"
-            class="inline-flex items-center rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700"
-          >
-            {{ t('home.login') }}
-          </router-link>
-        </div>
-      </nav>
-    </header>
+          </h1>
 
-    <!-- Main Content -->
-    <main class="relative z-10 flex-1 px-6 py-16">
-      <div class="mx-auto max-w-6xl">
-        <!-- Hero Section - Left/Right Layout -->
-        <div class="mb-12 flex flex-col items-center justify-between gap-12 lg:flex-row lg:gap-16">
-          <!-- Left: Text Content -->
-          <div class="flex-1 text-center lg:text-left">
-            <h1
-              class="mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
-            >
-              {{ siteName }}
-            </h1>
-            <p class="mb-8 text-lg text-gray-600 dark:text-dark-300 md:text-xl">
-              {{ siteSubtitle }}
-            </p>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+            {{ heroDescription }}
+          </p>
 
-            <!-- CTA Button -->
-            <div>
-              <router-link
-                :to="isAuthenticated ? dashboardPath : '/login'"
-                class="btn btn-primary px-8 py-3 text-base shadow-lg shadow-primary-500/30"
-              >
-                {{ isAuthenticated ? t('home.goToDashboard') : t('home.getStarted') }}
-                <Icon name="arrowRight" size="md" class="ml-2" :stroke-width="2" />
-              </router-link>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <router-link
+              :to="isAuthenticated ? dashboardPath : '/login'"
+              class="inline-flex items-center gap-2 rounded-full bg-[#1a1311] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_50px_rgba(59,30,20,0.18)] transition-transform hover:-translate-y-0.5 dark:bg-white dark:text-slate-950"
+            >
+              {{ isAuthenticated ? t('home.goToDashboard') : t('home.getStarted') }}
+              <Icon name="arrowRight" size="sm" />
+            </router-link>
+            <a
+              href="https://docs.smew.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-full border border-[#eedbc9] bg-white/85 px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white"
+            >
+              {{ t('home.hero.secondaryCta') }}
+              <Icon name="externalLink" size="sm" />
+            </a>
+            <router-link
+              to="/available-channels"
+              class="inline-flex items-center gap-2 rounded-full border border-[#eedbc9] bg-white/85 px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white"
+            >
+              {{ t('home.nav.models') }}
+              <Icon name="cube" size="sm" />
+            </router-link>
+          </div>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <div
+              v-for="tag in tags"
+              :key="tag"
+              class="rounded-full border border-[#eedbc9] bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+            >
+              {{ tag }}
             </div>
           </div>
 
-          <!-- Right: Terminal Animation -->
-          <div class="flex flex-1 justify-center lg:justify-end">
-            <div class="terminal-container">
-              <div class="terminal-window">
-                <!-- Window header -->
-                <div class="terminal-header">
-                  <div class="terminal-buttons">
-                    <span class="btn-close"></span>
-                    <span class="btn-minimize"></span>
-                    <span class="btn-maximize"></span>
-                  </div>
-                  <span class="terminal-title">terminal</span>
+          <div class="mt-10 grid gap-4 sm:grid-cols-3">
+            <div
+              v-for="item in stats"
+              :key="item.value"
+              class="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-[0_20px_60px_rgba(59,30,20,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
+            >
+              <div class="text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">{{ item.value }}</div>
+              <div class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ item.label }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="absolute -left-10 top-10 hidden h-28 w-28 rounded-full bg-[#ffd0a8]/70 blur-3xl lg:block dark:bg-[#70291e]/45"></div>
+          <div class="relative overflow-hidden rounded-[32px] border border-[#edd3bc] bg-[#fff8ef]/95 p-5 shadow-[0_32px_100px_rgba(59,30,20,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#1b1214]/90 dark:shadow-[0_32px_100px_rgba(0,0,0,0.4)]">
+            <div class="rounded-[28px] border border-[#eedbc9] bg-white/85 p-5 dark:border-white/10 dark:bg-white/5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#b6542e] dark:text-[#ffbf96]">
+                    {{ t('home.preview.badge') }}
+                  </p>
+                  <p class="mt-2 text-xl font-semibold text-slate-950 dark:text-white">
+                    {{ t('home.preview.title') }}
+                  </p>
+                  <p class="mt-3 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    {{ t('home.preview.configDescription') }}
+                  </p>
                 </div>
-                <!-- Terminal content -->
-                <div class="terminal-body">
-                  <div class="code-line line-1">
-                    <span class="code-prompt">$</span>
-                    <span class="code-cmd">curl</span>
-                    <span class="code-flag">-X POST</span>
-                    <span class="code-url">/v1/messages</span>
+                <span class="rounded-full bg-[#ffe5d1] px-3 py-1 text-[11px] font-semibold text-[#b6542e] dark:bg-[#ff9c66]/10 dark:text-[#ffcfb0]">
+                  {{ t('home.preview.panelStatus') }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div
+                v-for="item in heroFeatureCards"
+                :key="item.title"
+                class="rounded-3xl border border-[#eedbc9] bg-white/90 p-5 dark:border-white/10 dark:bg-white/5"
+              >
+                <div class="flex items-start gap-3">
+                  <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#1a1311] text-white dark:bg-[#ff9c66] dark:text-slate-950">
+                    <Icon :name="item.icon" size="md" />
                   </div>
-                  <div class="code-line line-2">
-                    <span class="code-comment"># Routing to upstream...</span>
-                  </div>
-                  <div class="code-line line-3">
-                    <span class="code-success">200 OK</span>
-                    <span class="code-response">{ "content": "Hello!" }</span>
-                  </div>
-                  <div class="code-line line-4">
-                    <span class="code-prompt">$</span>
-                    <span class="cursor"></span>
+                  <div>
+                    <p class="text-sm font-semibold text-slate-950 dark:text-white">{{ item.title }}</p>
+                    <p class="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ item.description }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Feature Tags - Centered -->
-        <div class="mb-12 flex flex-wrap items-center justify-center gap-4 md:gap-6">
-          <div
-            class="inline-flex items-center gap-2.5 rounded-full border border-gray-200/50 bg-white/80 px-5 py-2.5 shadow-sm backdrop-blur-sm dark:border-dark-700/50 dark:bg-dark-800/80"
-          >
-            <Icon name="swap" size="sm" class="text-primary-500" />
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{
-              t('home.tags.subscriptionToApi')
-            }}</span>
-          </div>
-          <div
-            class="inline-flex items-center gap-2.5 rounded-full border border-gray-200/50 bg-white/80 px-5 py-2.5 shadow-sm backdrop-blur-sm dark:border-dark-700/50 dark:bg-dark-800/80"
-          >
-            <Icon name="shield" size="sm" class="text-primary-500" />
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{
-              t('home.tags.stickySession')
-            }}</span>
-          </div>
-          <div
-            class="inline-flex items-center gap-2.5 rounded-full border border-gray-200/50 bg-white/80 px-5 py-2.5 shadow-sm backdrop-blur-sm dark:border-dark-700/50 dark:bg-dark-800/80"
-          >
-            <Icon name="chart" size="sm" class="text-primary-500" />
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{
-              t('home.tags.realtimeBilling')
-            }}</span>
-          </div>
         </div>
+      </section>
 
-        <!-- Features Grid -->
-        <div class="mb-12 grid gap-6 md:grid-cols-3">
-          <!-- Feature 1: Unified Gateway -->
-          <div
-            class="group rounded-2xl border border-gray-200/50 bg-white/60 p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10 dark:border-dark-700/50 dark:bg-dark-800/60"
-          >
-            <div
-              class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 transition-transform group-hover:scale-110"
-            >
-              <Icon name="server" size="lg" class="text-white" />
+      <section id="how" class="mx-auto mt-20 max-w-7xl">
+        <div class="rounded-[32px] border border-white/70 bg-white/80 p-8 shadow-[0_20px_60px_rgba(59,30,20,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+          <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-start">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+                {{ t('home.positioning.badge') }}
+              </p>
+              <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+                {{ t('home.positioning.title') }}
+              </h2>
+              <p class="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                {{ t('home.positioning.description') }}
+              </p>
             </div>
-            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('home.features.unifiedGateway') }}
-            </h3>
-            <p class="text-sm leading-relaxed text-gray-600 dark:text-dark-400">
-              {{ t('home.features.unifiedGatewayDesc') }}
-            </p>
-          </div>
-
-          <!-- Feature 2: Account Pool -->
-          <div
-            class="group rounded-2xl border border-gray-200/50 bg-white/60 p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10 dark:border-dark-700/50 dark:bg-dark-800/60"
-          >
-            <div
-              class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 transition-transform group-hover:scale-110"
-            >
-              <svg
-                class="h-6 w-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
+            <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <div
+                v-for="(h, i) in positioningHighlights"
+                :key="i"
+                class="flex items-center gap-3 rounded-2xl border border-[#eedbc9] bg-[#fff9f3]/80 px-4 py-3 dark:border-white/10 dark:bg-slate-950/40"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-                />
-              </svg>
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#1a1311] text-white dark:bg-[#ff9c66] dark:text-slate-950">
+                  <Icon :name="h.icon" size="sm" />
+                </div>
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ h.text }}</span>
+              </div>
             </div>
-            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('home.features.multiAccount') }}
-            </h3>
-            <p class="text-sm leading-relaxed text-gray-600 dark:text-dark-400">
-              {{ t('home.features.multiAccountDesc') }}
-            </p>
           </div>
+        </div>
+      </section>
 
-          <!-- Feature 3: Billing & Quota -->
-          <div
-            class="group rounded-2xl border border-gray-200/50 bg-white/60 p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10 dark:border-dark-700/50 dark:bg-dark-800/60"
-          >
-            <div
-              class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30 transition-transform group-hover:scale-110"
-            >
-              <svg
-                class="h-6 w-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
+      <section id="pricing" class="mx-auto mt-20 max-w-7xl">
+        <div class="rounded-[36px] border border-[#eedbc9] bg-[linear-gradient(135deg,#fff8ef_0%,#ffeeda_48%,#fff5ea_100%)] p-8 shadow-[0_20px_60px_rgba(59,30,20,0.1)] dark:border-white/10 dark:bg-[linear-gradient(135deg,#1a1311_0%,#231518_50%,#2b1813_100%)]">
+          <div class="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+                {{ t('home.comparisonV2.badge') }}
+              </p>
+              <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+                {{ t('home.comparisonV2.title') }}
+              </h2>
+              <p class="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                {{ t('home.comparisonV2.description') }}
+              </p>
+              <div class="mt-8 flex flex-wrap gap-3">
+                <span
+                  v-for="provider in providers"
+                  :key="provider"
+                  class="rounded-full border border-[#eedbc9] bg-white/85 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                >
+                  {{ provider }}
+                </span>
+              </div>
+            </div>
+
+            <div class="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 dark:border-white/10 dark:bg-slate-950/40">
+              <div class="grid grid-cols-3 border-b border-slate-200 text-sm font-semibold dark:border-white/10">
+                <div class="px-5 py-4 text-slate-500 dark:text-slate-400">{{ t('home.comparison.headers.feature') }}</div>
+                <div class="border-l border-slate-200 px-5 py-4 text-slate-500 dark:border-white/10 dark:text-slate-400">{{ t('home.comparison.headers.official') }}</div>
+                <div class="border-l border-slate-200 px-5 py-4 text-slate-950 dark:border-white/10 dark:text-white">{{ t('home.comparison.headers.us') }}</div>
+              </div>
+              <div
+                v-for="row in comparisonRows"
+                :key="row.feature"
+                class="grid grid-cols-3 border-b border-slate-200/80 text-sm last:border-b-0 dark:border-white/10"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
-                />
-              </svg>
+                <div class="px-5 py-4 font-semibold text-slate-950 dark:text-white">{{ row.feature }}</div>
+                <div class="border-l border-slate-200 px-5 py-4 text-slate-500 dark:border-white/10 dark:text-slate-400">{{ row.official }}</div>
+                <div class="border-l border-slate-200 px-5 py-4 text-slate-700 dark:border-white/10 dark:text-slate-200">{{ row.us }}</div>
+              </div>
             </div>
-            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('home.features.balanceQuota') }}
-            </h3>
-            <p class="text-sm leading-relaxed text-gray-600 dark:text-dark-400">
-              {{ t('home.features.balanceQuotaDesc') }}
+          </div>
+
+          <div v-if="catalogEnabled || purchaseLoading" class="mt-12">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+              {{ t('purchase.title') }}
             </p>
-          </div>
-        </div>
+            <h3 class="mt-4 text-2xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+              {{ t('purchase.heading') }}
+            </h3>
+            <p class="mt-2 text-base text-slate-600 dark:text-slate-300">
+              {{ t('purchase.description') }}
+            </p>
 
-        <!-- Supported Providers -->
-        <div class="mb-8 text-center">
-          <h2 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
-            {{ t('home.providers.title') }}
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-dark-400">
-            {{ t('home.providers.description') }}
-          </p>
-        </div>
+            <div v-if="purchaseLoading" class="mt-8 flex justify-center py-12">
+              <div class="h-10 w-10 animate-spin rounded-full border-2 border-[#e55d2b] border-t-transparent" />
+            </div>
 
-        <div class="mb-16 flex flex-wrap items-center justify-center gap-4">
-          <!-- Claude - Supported -->
-          <div
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
-          >
             <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-500"
+              v-else-if="!catalogEnabled"
+              class="mt-8 flex items-center justify-center rounded-2xl border border-[#eedbc9] bg-white/80 px-6 py-12 text-center dark:border-white/10 dark:bg-white/5"
             >
-              <span class="text-xs font-bold text-white">C</span>
+              <div class="max-w-md">
+                <Icon name="creditCard" size="lg" class="mx-auto text-slate-400" />
+                <h4 class="mt-4 text-lg font-semibold text-slate-950 dark:text-white">
+                  {{ t('purchase.notEnabledTitle') }}
+                </h4>
+                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  {{ t('purchase.notEnabledDesc') }}
+                </p>
+              </div>
             </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.claude') }}</span>
-            <span
-              class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-              >{{ t('home.providers.supported') }}</span
-            >
-          </div>
-          <!-- GPT - Supported -->
-          <div
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
-          >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-green-600"
-            >
-              <span class="text-xs font-bold text-white">G</span>
-            </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">GPT</span>
-            <span
-              class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-              >{{ t('home.providers.supported') }}</span
-            >
-          </div>
-          <!-- Gemini - Supported -->
-          <div
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
-          >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600"
-            >
-              <span class="text-xs font-bold text-white">G</span>
-            </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.gemini') }}</span>
-            <span
-              class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-              >{{ t('home.providers.supported') }}</span
-            >
-          </div>
-          <!-- Antigravity - Supported -->
-          <div
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
-          >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600"
-            >
-              <span class="text-xs font-bold text-white">A</span>
-            </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.antigravity') }}</span>
-            <span
-              class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-              >{{ t('home.providers.supported') }}</span
-            >
-          </div>
-          <!-- More - Coming Soon -->
-          <div
-            class="flex items-center gap-2 rounded-xl border border-gray-200/50 bg-white/40 px-5 py-3 opacity-60 backdrop-blur-sm dark:border-dark-700/50 dark:bg-dark-800/40"
-          >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-gray-500 to-gray-600"
-            >
-              <span class="text-xs font-bold text-white">+</span>
-            </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.more') }}</span>
-            <span
-              class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-dark-700 dark:text-dark-400"
-              >{{ t('home.providers.soon') }}</span
-            >
+
+            <template v-else>
+              <div v-if="showPurchaseTabs" class="purchase-home-tabs mt-8">
+                <button
+                  type="button"
+                  class="purchase-home-tab"
+                  :class="{ 'purchase-home-tab-active': homeActiveTab === 'subscription' }"
+                  @click="homeActiveTab = 'subscription'"
+                >
+                  订阅套餐
+                </button>
+                <button
+                  v-if="paygoEnabled"
+                  type="button"
+                  class="purchase-home-tab"
+                  :class="{ 'purchase-home-tab-active': homeActiveTab === 'paygo' }"
+                  @click="homeActiveTab = 'paygo'"
+                >
+                  按量付费
+                </button>
+              </div>
+
+              <div v-if="homeActiveTab === 'subscription'" class="purchase-home-grid mt-8">
+                <article
+                  v-for="product in purchaseProducts"
+                  :key="product.group_id"
+                  class="purchase-home-card"
+                >
+                  <div class="space-y-5">
+                    <div class="space-y-2">
+                      <div class="flex items-start justify-between gap-2">
+                        <h4 class="purchase-home-card-title min-w-0 flex-1">{{ product.name }}</h4>
+                        <span
+                          v-if="product.marketing_label?.trim()"
+                          class="purchase-home-marketing-pill shrink-0"
+                        >{{ product.marketing_label.trim() }}</span>
+                      </div>
+                      <div class="flex items-end gap-3">
+                        <span class="purchase-home-price">￥{{ formatPurchasePriceCNY(product.purchase_price_cny) }}</span>
+                        <span class="purchase-home-period">{{ periodLabel(product.default_validity_days) }}</span>
+                      </div>
+                    </div>
+                    <ul class="purchase-home-highlights">
+                      <li
+                        v-for="item in productHighlights(product)"
+                        :key="`${product.group_id}-${item}`"
+                        class="flex items-start gap-2.5"
+                      >
+                        <span class="purchase-home-highlight-dot" />
+                        <span class="text-slate-700 dark:text-slate-300">{{ item }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="purchase-home-actions">
+                    <button
+                      type="button"
+                      class="purchase-home-btn purchase-home-btn-primary"
+                      @click="openSubscriptionDialog(product)"
+                    >
+                      {{ t('purchase.dialog.openCta') }}
+                    </button>
+                  </div>
+                </article>
+
+              </div>
+
+              <PayGoPanel
+                v-else
+                class="mt-8"
+                :title="publicSettings?.paygo_title"
+                :description="publicSettings?.paygo_description"
+                :badge-text="publicSettings?.paygo_badge_text"
+                :notice-title="publicSettings?.paygo_notice_title"
+                :notice-description="publicSettings?.paygo_notice_description"
+                :preset-packages="publicSettings?.paygo_preset_packages || []"
+                :rate-rmb-to-usd="publicSettings?.paygo_rate_rmb_to_usd || 1"
+                :min-amount-cny="publicSettings?.paygo_min_amount_cny || 100"
+                :preset-amounts-cny="publicSettings?.paygo_preset_amounts_cny || [100, 300, 500, 1000]"
+                :slider-min-amount-cny="publicSettings?.paygo_slider_min_amount_cny || publicSettings?.paygo_min_amount_cny || 100"
+                :slider-max-amount-cny="publicSettings?.paygo_slider_max_amount_cny || 1000"
+                :slider-step-amount-cny="publicSettings?.paygo_slider_step_amount_cny || 50"
+                :token-per-usd-million="publicSettings?.paygo_token_per_usd_million || 1"
+                :price-details-url="publicSettings?.paygo_price_details_url"
+                :alipay-enabled="alipayEnabled"
+                :wxpay-enabled="wxpayEnabled"
+                :submitting-key="homePayGoSubmittingKey"
+                @create-order="handlePayGoOrder"
+              />
+
+              <p v-if="subscriptionEnabled && purchaseProducts.length === 0 && homeActiveTab === 'subscription'" class="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                {{ t('purchase.emptyProducts') }}
+              </p>
+            </template>
+
+            <SubscriptionPurchaseDialog
+              :show="subscriptionDialogOpen"
+              :product="selectedProduct"
+              :selected-method="selectedPaymentMethod"
+              :use-points-deduction="usePointsDeduction"
+              :alipay-enabled="alipayEnabled"
+              :wxpay-enabled="wxpayEnabled"
+              :submitting="subscriptionSubmitting"
+              :current-points="authStore.user?.points_balance || 0"
+              @close="closeSubscriptionDialog"
+              @update:selected-method="selectedPaymentMethod = $event"
+              @update:use-points-deduction="usePointsDeduction = $event"
+              @submit="submitSubscriptionDialog"
+            />
           </div>
         </div>
-      </div>
+      </section>
+
+      <section id="testimonials" class="mx-auto mt-20 max-w-7xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+          {{ t('home.testimonials.badge') }}
+        </p>
+        <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+          {{ t('home.testimonials.title') }}
+        </h2>
+        <div class="mt-8 grid gap-6 md:grid-cols-2">
+          <div
+            v-for="(item, index) in testimonials"
+            :key="index"
+            class="rounded-3xl border border-[#eedbc9] bg-white/90 p-6 shadow-[0_20px_60px_rgba(59,30,20,0.08)] dark:border-white/10 dark:bg-slate-950/40"
+          >
+            <p class="text-base leading-7 text-slate-600 dark:text-slate-300">&ldquo;{{ item.quote }}&rdquo;</p>
+            <p class="mt-4 text-sm font-semibold text-slate-950 dark:text-white">{{ item.name }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ item.role }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="mx-auto mt-20 max-w-7xl">
+        <div class="relative overflow-hidden rounded-[36px] border border-white/70 bg-white/60 px-6 py-8 shadow-[0_20px_60px_rgba(59,30,20,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:px-8 sm:py-10">
+          <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.03)_1px,transparent_1px)] bg-[size:40px_40px] dark:bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)]"></div>
+          <div class="relative">
+            <div class="mx-auto max-w-3xl text-center">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+                {{ t('home.faq.badge') }}
+              </p>
+              <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+                {{ t('home.faq.title') }}
+              </h2>
+              <p class="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                {{ t('home.faq.description') }}
+              </p>
+            </div>
+
+            <div class="mt-8 space-y-5">
+              <article
+                v-for="item in faqItems"
+                :key="item.question"
+                class="rounded-[28px] border border-[#e9ddd0] bg-white/92 px-6 py-6 shadow-[0_18px_50px_rgba(59,30,20,0.06)] dark:border-white/10 dark:bg-slate-950/45"
+              >
+                <h3 class="text-2xl font-semibold tracking-[-0.03em] text-slate-950 dark:text-white">
+                  {{ item.question }}
+                </h3>
+                <p class="mt-4 text-lg leading-9 text-slate-600 dark:text-slate-300">
+                  {{ item.answer }}
+                </p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="codex-install" class="mx-auto mt-20 max-w-7xl">
+        <div class="rounded-[36px] border border-[#eedbc9] bg-white/90 p-8 shadow-[0_20px_60px_rgba(59,30,20,0.08)] dark:border-white/10 dark:bg-slate-950/40">
+          <div class="grid gap-8 lg:grid-cols-[0.88fr_1.12fr]">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#b6542e] dark:text-[#ffbf96]">
+                {{ t('home.codexInstall.badge') }}
+              </p>
+              <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white">
+                {{ t('home.codexInstall.title') }}
+              </h2>
+              <p class="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                {{ t('home.codexInstall.description') }}
+              </p>
+
+              <div class="mt-6 flex flex-wrap gap-3">
+                <a
+                  :href="codexKeysUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 rounded-full border border-[#eedbc9] bg-[#fff8ef] px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white"
+                >
+                  {{ t('home.codexInstall.getKey') }}
+                  <Icon name="key" size="sm" />
+                </a>
+                <a
+                  :href="codexInstallerUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 rounded-full border border-[#eedbc9] bg-[#fff8ef] px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white"
+                >
+                  {{ t('home.codexInstall.viewScript') }}
+                  <Icon name="externalLink" size="sm" />
+                </a>
+              </div>
+
+              <div class="mt-8 space-y-3">
+                <div
+                  v-for="item in codexInstallHighlights"
+                  :key="item.text"
+                  class="flex items-center gap-3 rounded-2xl border border-[#eedbc9] bg-[#fff8ef]/80 px-4 py-3 dark:border-white/10 dark:bg-slate-950/40"
+                >
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#1a1311] text-white dark:bg-[#ff9c66] dark:text-slate-950">
+                    <Icon :name="item.icon" size="sm" />
+                  </div>
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ item.text }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-5">
+              <div class="overflow-hidden rounded-[28px] border border-[#eedbc9] bg-[#1a1311] shadow-[0_20px_50px_rgba(15,23,42,0.22)] dark:border-white/10">
+                <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div class="flex items-center gap-2 text-sm font-semibold text-white">
+                    <Icon name="terminal" size="sm" />
+                    <span>{{ t('home.codexInstall.macLabel') }}</span>
+                  </div>
+                </div>
+                <div class="space-y-4 p-5">
+                  <pre class="overflow-x-auto rounded-2xl bg-black/30 p-4 text-sm leading-6 text-[#ffd6ad]"><code>{{ codexInstallCommand }}</code></pre>
+                  <p class="text-sm leading-6 text-slate-300">
+                    {{ t('home.codexInstall.macDescription') }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="rounded-[28px] border border-[#eedbc9] bg-[#fff8ef]/85 p-5 dark:border-white/10 dark:bg-white/5">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white">
+                  <Icon name="document" size="sm" />
+                  <span>{{ t('home.codexInstall.manualLabel') }}</span>
+                </div>
+                <pre class="mt-4 overflow-x-auto rounded-2xl border border-[#eedbc9] bg-white/90 p-4 text-sm leading-6 text-slate-700 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-200"><code>{{ codexManualConfig }}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto mt-20 max-w-7xl">
+        <div class="rounded-2xl border border-[#c5e0d8]/80 bg-white/90 px-8 py-10 shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-slate-900/50 dark:shadow-none">
+          <div class="flex flex-col items-center gap-6 text-center">
+            <h2 class="text-2xl font-semibold tracking-[-0.04em] text-slate-900 dark:text-white">
+              {{ t('home.contact.title') }}
+            </h2>
+            <p class="max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300">
+              {{ t('home.contact.subtitle') }}
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+              <div
+                class="flex min-w-[200px] items-center justify-between gap-3 rounded-xl border border-[#eedbc9] bg-white px-5 py-3 text-left shadow-sm dark:border-white/10 dark:bg-white/5"
+              >
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ t('home.contact.wechatLabel') }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400">{{ contactWechatId }}</span>
+                </div>
+                <Icon name="chat" size="sm" class="shrink-0 text-slate-400 dark:text-slate-500" />
+              </div>
+              <a
+                :href="contactEmailHref"
+                class="flex min-w-[200px] items-center justify-between gap-3 rounded-xl border border-[#eedbc9] bg-white px-5 py-3 text-left shadow-sm transition-colors hover:border-[#e5c7a8] hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+              >
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ t('home.contact.emailLabel') }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400">{{ contactEmail }}</span>
+                </div>
+                <Icon name="mail" size="sm" class="shrink-0 text-slate-400 dark:text-slate-500" />
+              </a>
+              <a
+                :href="contactXUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex min-w-[200px] items-center justify-between gap-3 rounded-xl border border-[#eedbc9] bg-white px-5 py-3 text-left shadow-sm transition-colors hover:border-[#e5c7a8] hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+              >
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ t('home.contact.xLabel') }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400 break-all">{{ contactXUrl }}</span>
+                </div>
+                <Icon name="externalLink" size="sm" class="shrink-0 text-slate-400 dark:text-slate-500" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto mt-20 max-w-7xl">
+        <div class="rounded-[36px] border border-[#3b241d] bg-[#1a1311] px-8 py-10 text-white shadow-[0_32px_100px_rgba(59,30,20,0.34)] dark:border-white/10">
+          <div class="flex flex-col items-center gap-8 text-center">
+            <div class="max-w-2xl">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffbf96]">
+                {{ t('home.cta.badge') }}
+              </p>
+              <h2 class="mt-4 text-3xl font-semibold tracking-[-0.04em]">
+                {{ t('home.cta.title') }}
+              </h2>
+              <p class="mt-4 text-base leading-7 text-slate-300">
+                {{ t('home.cta.description') }}
+              </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3">
+              <router-link
+                :to="isAuthenticated ? dashboardPath : '/register'"
+                class="inline-flex items-center gap-2 rounded-full bg-[#ff9c66] px-6 py-3 text-sm font-semibold text-slate-950 transition-transform hover:-translate-y-0.5"
+              >
+                {{ t('home.cta.button') }}
+                <Icon name="arrowRight" size="sm" />
+              </router-link>
+              <a
+                href="https://docs.smew.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white"
+              >
+                {{ t('home.docs') }}
+                <Icon name="externalLink" size="sm" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="relative z-10 border-t border-gray-200/50 px-6 py-8 dark:border-dark-800/50">
-      <div
-        class="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 text-center sm:flex-row sm:text-left"
-      >
-        <p class="text-sm text-gray-500 dark:text-dark-400">
-          &copy; {{ currentYear }} {{ siteName }}. {{ t('home.footer.allRightsReserved') }}
-        </p>
-        <div class="flex items-center gap-4">
-          <a
-            v-if="docUrl"
-            :href="docUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-dark-400 dark:hover:text-white"
-          >
-            {{ t('home.docs') }}
-          </a>
-          <a
-            :href="githubUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-dark-400 dark:hover:text-white"
-          >
-            GitHub
-          </a>
-        </div>
+    <footer class="relative z-10 px-6 pb-8 pt-4">
+      <div class="mx-auto max-w-7xl border-t border-slate-200/80 pt-6 text-center text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+        <p>&copy; {{ currentYear }} {{ siteName }}. {{ t('home.footer.allRightsReserved') }}</p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import purchaseAPI from '@/api/purchase'
 import { useAuthStore, useAppStore } from '@/stores'
-import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
+import type { PurchaseProduct } from '@/types'
+import {
+  formatPurchasePriceCNY,
+  resolvePurchasePeriod,
+  splitPurchaseHighlights
+} from '@/utils/purchaseDisplay'
+import SiteHeader from '@/components/layout/SiteHeader.vue'
 import Icon from '@/components/icons/Icon.vue'
-import { sanitizeUrl } from '@/utils/url'
+import PayGoPanel from '@/components/purchase/PayGoPanel.vue'
+import SubscriptionPurchaseDialog from '@/components/purchase/SubscriptionPurchaseDialog.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
 
-// Site settings - directly from appStore (already initialized from injected config)
-const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Sub2API')
-const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
-const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'AI API Gateway Platform')
-const docUrl = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.doc_url || appStore.docUrl || ''))
+const defaultGatewayBaseUrl = 'https://smew.ai'
+const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Smew.ai')
 const homeContent = computed(() => appStore.cachedPublicSettings?.home_content || '')
+const heroDescription = computed(() => {
+  const fallback = t('home.hero.description')
+  const subtitle = appStore.cachedPublicSettings?.site_subtitle?.trim()
+  const text = subtitle || fallback
+  return text.replace(/（燃料）/, '（「燃料」）').replace(/\(燃料\)/, '（「燃料」）')
+})
 
-// Check if homeContent is a URL (for iframe display)
 const isHomeContentUrl = computed(() => {
   const content = homeContent.value.trim()
   return content.startsWith('http://') || content.startsWith('https://')
 })
+const gatewayBaseUrl = computed(() => {
+  const configured = appStore.cachedPublicSettings?.api_base_url?.trim() || appStore.apiBaseUrl?.trim()
+  return configured ? configured.replace(/\/$/, '') : defaultGatewayBaseUrl
+})
+const codexInstallerUrl = computed(() => `${gatewayBaseUrl.value}/auto-config/install.sh`)
+const codexKeysUrl = 'https://smew.ai/keys'
+const codexInstallCommand = computed(() => `curl -fsSL ${codexInstallerUrl.value} | bash`)
+const codexManualConfig = computed(() => `model_provider = "SmewAI"
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+model_context_window = 256000
+model_max_output_tokens = 32768
 
-// Theme
-const isDark = ref(document.documentElement.classList.contains('dark'))
+[model_providers.SmewAI]
+name = "SmewAI"
+base_url = "${gatewayBaseUrl.value}/v1"
+wire_api = "responses"
+requires_openai_auth = true`)
 
-// GitHub URL
-const githubUrl = 'https://github.com/Wei-Shaw/sub2api'
-
-// Auth state
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const isAdmin = computed(() => authStore.isAdmin)
-const dashboardPath = computed(() => isAdmin.value ? '/admin/dashboard' : '/dashboard')
-const userInitial = computed(() => {
-  const user = authStore.user
-  if (!user || !user.email) return ''
-  return user.email.charAt(0).toUpperCase()
-})
-
-// Current year for footer
+const dashboardPath = computed(() => (isAdmin.value ? '/admin/dashboard' : '/dashboard'))
 const currentYear = computed(() => new Date().getFullYear())
 
-// Toggle theme
-function toggleTheme() {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark', isDark.value)
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+const contactWechatId = 'jiangztaoo'
+const contactEmail = 'jiangzhengtao02@gmail.com'
+const contactEmailHref = `mailto:${contactEmail}`
+const contactXUrl = 'https://x.com/JiangK82705'
+const purchaseProducts = ref<PurchaseProduct[]>([])
+const purchaseLoading = ref(false)
+const purchaseSubmittingKey = ref<string | null>(null)
+const homeActiveTab = ref<'subscription' | 'paygo'>('subscription')
+const subscriptionDialogOpen = ref(false)
+const selectedProduct = ref<PurchaseProduct | null>(null)
+const selectedPaymentMethod = ref<'alipay' | 'wxpay' | 'points' | null>(null)
+const usePointsDeduction = ref(false)
+
+const publicSettings = computed(() => appStore.cachedPublicSettings)
+// The current Sub2API payment catalog is authenticated, while the SmewAI source
+// project exposes its catalog publicly. Keep anonymous landing-page visits clean
+// and enable purchase widgets only after the user has signed in.
+const subscriptionEnabled = computed(() =>
+  isAuthenticated.value && (publicSettings.value?.purchase_subscription_enabled ?? false)
+)
+const paygoEnabled = computed(() =>
+  isAuthenticated.value && (publicSettings.value?.paygo_enabled ?? false)
+)
+const catalogEnabled = computed(() => subscriptionEnabled.value || paygoEnabled.value)
+const showPurchaseTabs = computed(() => subscriptionEnabled.value && paygoEnabled.value)
+const epayEnabled = computed(() => publicSettings.value?.epay_enabled ?? false)
+const alipayEnabled = computed(() => epayEnabled.value && (publicSettings.value?.epay_alipay_enabled ?? false))
+const wxpayEnabled = computed(() => epayEnabled.value && (publicSettings.value?.epay_wxpay_enabled ?? false))
+const homePayGoSubmittingKey = computed(() => {
+  if (
+    purchaseSubmittingKey.value === 'paygo:alipay' ||
+    purchaseSubmittingKey.value === 'paygo:wxpay'
+  ) {
+    return purchaseSubmittingKey.value
+  }
+  return null
+})
+const subscriptionSubmitting = computed(() => {
+  if (!selectedProduct.value || !selectedPaymentMethod.value) return false
+  return purchaseSubmittingKey.value === `subscription:${selectedPaymentMethod.value}:${selectedProduct.value.group_id}`
+})
+watch([subscriptionEnabled, paygoEnabled], ([subscription, paygo]) => {
+  if (subscription) {
+    homeActiveTab.value = homeActiveTab.value === 'paygo' && paygo ? 'paygo' : 'subscription'
+    return
+  }
+  if (paygo) {
+    homeActiveTab.value = 'paygo'
+  }
+})
+
+function periodLabel(days: number) {
+  const period = resolvePurchasePeriod(days)
+  if (period.key === 'days') {
+    return t('purchase.period.days', { days: period.days })
+  }
+  return t(`purchase.period.${period.key}`)
 }
 
-// Initialize theme
-function initTheme() {
-  const savedTheme = localStorage.getItem('theme')
-  if (
-    savedTheme === 'dark' ||
-    (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  ) {
-    isDark.value = true
-    document.documentElement.classList.add('dark')
+function productHighlights(product: PurchaseProduct) {
+  return splitPurchaseHighlights(product.description)
+}
+
+function resolveDefaultPaymentMethod() {
+  if (alipayEnabled.value) return 'alipay'
+  if (wxpayEnabled.value) return 'wxpay'
+  return 'points'
+}
+
+function openSubscriptionDialog(product: PurchaseProduct) {
+  selectedProduct.value = product
+  selectedPaymentMethod.value = resolveDefaultPaymentMethod()
+  usePointsDeduction.value = (authStore.user?.points_balance || 0) > 0 && selectedPaymentMethod.value !== 'points'
+  subscriptionDialogOpen.value = true
+}
+
+function closeSubscriptionDialog() {
+  subscriptionDialogOpen.value = false
+  selectedProduct.value = null
+  selectedPaymentMethod.value = null
+  usePointsDeduction.value = false
+}
+
+async function submitSubscriptionDialog() {
+  if (!selectedProduct.value || !selectedPaymentMethod.value) return
+  await handleSubscriptionOrder(selectedProduct.value.group_id, selectedPaymentMethod.value)
+}
+
+async function handleSubscriptionOrder(groupId: number, method: 'alipay' | 'wxpay' | 'points') {
+  const enabled = method === 'alipay' ? alipayEnabled.value : method === 'wxpay' ? wxpayEnabled.value : true
+  if (!enabled) return
+  const requestKey = `subscription:${method}:${groupId}`
+  purchaseSubmittingKey.value = requestKey
+  try {
+    const result = await purchaseAPI.createOrder({
+      group_id: groupId,
+      product_type: 'subscription',
+      method,
+      use_points: method !== 'points' ? usePointsDeduction.value : false
+    })
+    if (result.method === 'points' || result.status === 'fulfilled') {
+      await authStore.refreshUser()
+      closeSubscriptionDialog()
+      appStore.showSuccess(t('purchase.points.exchangeSuccess'))
+      await router.push(`/purchase/success?trade_no=${result.trade_no}&product_type=${result.product_type}`)
+      return
+    }
+    closeSubscriptionDialog()
+    submitPaymentForm(result.url, result.form_fields)
+  } catch (err: unknown) {
+    const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : ''
+    appStore.showError(message || t('purchase.failedToCreateOrder'))
+  } finally {
+    purchaseSubmittingKey.value = null
   }
 }
 
-onMounted(() => {
-  initTheme()
+async function handlePayGoOrder(payload: { method: 'alipay' | 'wxpay'; amountCny: number }) {
+  const requestKey = `paygo:${payload.method}`
+  purchaseSubmittingKey.value = requestKey
+  try {
+    const result = await purchaseAPI.createOrder({
+      product_type: 'paygo',
+      amount_cny: payload.amountCny,
+      method: payload.method
+    })
+    if (result.method === 'points' || result.status === 'fulfilled') {
+      await authStore.refreshUser()
+      appStore.showSuccess('余额充值成功')
+      await router.push(`/purchase/success?trade_no=${result.trade_no}&product_type=${result.product_type}`)
+      return
+    }
+    submitPaymentForm(result.url, result.form_fields)
+  } catch (err: unknown) {
+    const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : ''
+    appStore.showError(message || t('purchase.failedToCreateOrder'))
+  } finally {
+    purchaseSubmittingKey.value = null
+  }
+}
 
-  // Check auth state
+function submitPaymentForm(action: string, fields: Record<string, string>) {
+  const form = document.createElement('form')
+  form.method = 'POST'
+  form.action = action
+  form.style.display = 'none'
+  Object.entries(fields).forEach(([key, value]) => {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = key
+    input.value = value
+    form.appendChild(input)
+  })
+  document.body.appendChild(form)
+  form.submit()
+  form.remove()
+}
+
+const tags = computed(() => [
+  t('home.tags.subscriptionToApi'),
+  t('home.tags.stickySession'),
+  t('home.tags.realtimeBilling'),
+  t('home.tags.alwaysOn')
+])
+
+const stats = computed(() => [
+  { value: t('home.stats.subscriptionValue'), label: t('home.stats.unifiedAccess') },
+  { value: t('home.stats.modelsValue'), label: t('home.stats.routingLatency') },
+  { value: t('home.stats.noBillShockValue'), label: t('home.stats.opsVisibility') }
+])
+
+const heroFeatureCards = computed(() => [
+  {
+    icon: 'link' as const,
+    title: t('home.featuresV2.items.compatible.title'),
+    description: t('home.featuresV2.items.compatible.description')
+  },
+  {
+    icon: 'refresh' as const,
+    title: t('home.featuresV2.items.stable.title'),
+    description: t('home.featuresV2.items.stable.description')
+  },
+  {
+    icon: 'chart' as const,
+    title: t('home.featuresV2.items.visibility.title'),
+    description: t('home.featuresV2.items.visibility.description')
+  },
+  {
+    icon: 'database' as const,
+    title: t('home.featuresV2.items.quota.title'),
+    description: t('home.featuresV2.items.quota.description')
+  },
+  {
+    icon: 'bolt' as const,
+    title: t('home.featuresV2.items.latency.title'),
+    description: t('home.featuresV2.items.latency.description')
+  },
+  {
+    icon: 'dollar' as const,
+    title: t('home.featuresV2.items.affordable.title'),
+    description: t('home.featuresV2.items.affordable.description')
+  }
+])
+
+const providers = computed(() => [
+  'GPT-5.4+',
+  'Codex',
+  'OpenClaw',
+  'Claude',
+  t('home.providers.gemini'),
+  t('home.providers.more')
+])
+
+const testimonials = computed(() => [
+  {
+    quote: t('home.testimonials.items.0.quote'),
+    name: t('home.testimonials.items.0.name'),
+    role: t('home.testimonials.items.0.role')
+  },
+  {
+    quote: t('home.testimonials.items.1.quote'),
+    name: t('home.testimonials.items.1.name'),
+    role: t('home.testimonials.items.1.role')
+  }
+])
+
+const faqItems = computed(() => [
+  {
+    question: t('home.faq.items.0.question'),
+    answer: t('home.faq.items.0.answer')
+  },
+  {
+    question: t('home.faq.items.1.question'),
+    answer: t('home.faq.items.1.answer')
+  },
+  {
+    question: t('home.faq.items.2.question'),
+    answer: t('home.faq.items.2.answer')
+  },
+  {
+    question: t('home.faq.items.3.question'),
+    answer: t('home.faq.items.3.answer')
+  },
+  {
+    question: t('home.faq.items.4.question'),
+    answer: t('home.faq.items.4.answer')
+  },
+  {
+    question: t('home.faq.items.5.question'),
+    answer: t('home.faq.items.5.answer')
+  },
+  {
+    question: t('home.faq.items.6.question'),
+    answer: t('home.faq.items.6.answer')
+  },
+  {
+    question: t('home.faq.items.7.question'),
+    answer: t('home.faq.items.7.answer')
+  }
+])
+
+const positioningHighlights = computed(() => [
+  {
+    icon: 'bolt' as const,
+    text: t('home.positioning.highlights.0.text')
+  },
+  {
+    icon: 'database' as const,
+    text: t('home.positioning.highlights.1.text')
+  },
+  {
+    icon: 'chart' as const,
+    text: t('home.positioning.highlights.2.text')
+  }
+])
+const codexInstallHighlights = computed(() => [
+  {
+    icon: 'key' as const,
+    text: t('home.codexInstall.highlights.0')
+  },
+  {
+    icon: 'document' as const,
+    text: t('home.codexInstall.highlights.1')
+  },
+  {
+    icon: 'checkCircle' as const,
+    text: t('home.codexInstall.highlights.2')
+  }
+])
+
+const comparisonRows = computed(() => [
+  {
+    feature: t('home.comparison.items.pricing.feature'),
+    official: t('home.comparison.items.pricing.official'),
+    us: t('home.comparison.items.pricing.us')
+  },
+  {
+    feature: t('home.comparison.items.models.feature'),
+    official: t('home.comparison.items.models.official'),
+    us: t('home.comparison.items.models.us')
+  },
+  {
+    feature: t('home.comparison.items.management.feature'),
+    official: t('home.comparison.items.management.official'),
+    us: t('home.comparison.items.management.us')
+  },
+  {
+    feature: t('home.comparison.items.stability.feature'),
+    official: t('home.comparison.items.stability.official'),
+    us: t('home.comparison.items.stability.us')
+  },
+  {
+    feature: t('home.comparison.items.control.feature'),
+    official: t('home.comparison.items.control.official'),
+    us: t('home.comparison.items.control.us')
+  }
+])
+
+onMounted(async () => {
   authStore.checkAuth()
 
-  // Ensure public settings are loaded (will use cache if already loaded from injected config)
   if (!appStore.publicSettingsLoaded) {
-    appStore.fetchPublicSettings()
+    await appStore.fetchPublicSettings()
+  }
+
+  if (subscriptionEnabled.value) {
+    purchaseLoading.value = true
+    try {
+      purchaseProducts.value = await purchaseAPI.listProducts()
+    } catch {
+      appStore.showError(t('purchase.failedToLoadProducts'))
+    } finally {
+      purchaseLoading.value = false
+    }
+  }
+  if (!subscriptionEnabled.value && paygoEnabled.value) {
+    homeActiveTab.value = 'paygo'
   }
 })
 </script>
 
 <style scoped>
-/* Terminal Container */
-.terminal-container {
-  position: relative;
-  display: inline-block;
+.purchase-home-grid {
+  @apply grid gap-4 md:grid-cols-2 xl:grid-cols-3;
 }
-
-/* Terminal Window */
-.terminal-window {
-  width: 420px;
-  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-  border-radius: 14px;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
-  transition: transform 0.3s ease;
+.purchase-home-tabs {
+  @apply mx-auto flex w-fit rounded-full border border-[#eedbc9] bg-white p-1 shadow-sm dark:border-white/10 dark:bg-white/5;
 }
-
-.terminal-window:hover {
-  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(-4px);
+.purchase-home-tab {
+  @apply rounded-full px-6 py-3 text-lg font-semibold text-slate-500 transition-colors dark:text-slate-300;
 }
-
-/* Terminal Header */
-.terminal-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: rgba(30, 41, 59, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.purchase-home-tab-active {
+  @apply bg-emerald-600 text-white shadow-md;
 }
-
-.terminal-buttons {
-  display: flex;
-  gap: 8px;
+.purchase-home-card {
+  @apply relative flex min-h-[320px] flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[#eedbc9] bg-white/90 px-6 py-6 shadow-sm transition-all duration-200 dark:border-white/10 dark:bg-slate-950/50;
 }
-
-.terminal-buttons span {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.purchase-home-card-title {
+  @apply text-xl font-semibold text-slate-950 dark:text-white;
 }
-
-.btn-close {
-  background: #ef4444;
+.purchase-home-marketing-pill {
+  @apply inline-flex max-w-[11rem] items-center rounded-full px-2.5 py-0.5 text-xs font-medium leading-tight;
+  background-color: #e0f7f4;
+  color: #00897b;
 }
-.btn-minimize {
-  background: #eab308;
+:global(.dark) .purchase-home-marketing-pill {
+  background-color: rgba(45, 212, 191, 0.15);
+  color: #5eead4;
 }
-.btn-maximize {
-  background: #22c55e;
+.purchase-home-price {
+  @apply text-3xl font-semibold text-slate-950 dark:text-white;
 }
-
-.terminal-title {
-  flex: 1;
-  text-align: center;
-  font-size: 12px;
-  font-family: ui-monospace, monospace;
-  color: #64748b;
-  margin-right: 52px;
+.purchase-home-period {
+  @apply text-sm text-slate-500 dark:text-slate-400;
 }
-
-/* Terminal Body */
-.terminal-body {
-  padding: 20px 24px;
-  font-family: ui-monospace, 'Fira Code', monospace;
-  font-size: 14px;
-  line-height: 2;
+.purchase-home-highlights {
+  @apply space-y-2 text-sm;
 }
-
-.code-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  opacity: 0;
-  animation: line-appear 0.5s ease forwards;
+.purchase-home-highlight-dot {
+  @apply mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500;
 }
-
-.line-1 {
-  animation-delay: 0.3s;
+.purchase-home-actions {
+  @apply grid gap-3;
 }
-.line-2 {
-  animation-delay: 1s;
+.purchase-home-btn {
+  @apply inline-flex min-h-[48px] items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors;
 }
-.line-3 {
-  animation-delay: 1.8s;
-}
-.line-4 {
-  animation-delay: 2.5s;
-}
-
-@keyframes line-appear {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.code-prompt {
-  color: #22c55e;
-  font-weight: bold;
-}
-.code-cmd {
-  color: #38bdf8;
-}
-.code-flag {
-  color: #a78bfa;
-}
-.code-url {
-  color: #14b8a6;
-}
-.code-comment {
-  color: #64748b;
-  font-style: italic;
-}
-.code-success {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.15);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-.code-response {
-  color: #fbbf24;
-}
-
-/* Blinking Cursor */
-.cursor {
-  display: inline-block;
-  width: 8px;
-  height: 16px;
-  background: #22c55e;
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%,
-  50% {
-    opacity: 1;
-  }
-  51%,
-  100% {
-    opacity: 0;
-  }
-}
-
-/* Dark mode adjustments */
-:deep(.dark) .terminal-window {
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(20, 184, 166, 0.2),
-    0 0 40px rgba(20, 184, 166, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+.purchase-home-btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, #fb7185 0%, #60a5fa 100%);
+  box-shadow: 0 16px 36px rgba(244, 114, 182, 0.18);
 }
 </style>

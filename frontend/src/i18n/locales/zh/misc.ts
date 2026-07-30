@@ -60,13 +60,78 @@ export default {
 
   // Recharge / Subscription Page
   purchase: {
-    title: '充值/订阅',
-    description: '通过内嵌页面完成充值/订阅',
     openInNewTab: '新窗口打开',
-    notEnabledTitle: '该功能未开启',
-    notEnabledDesc: '管理员暂未开启充值/订阅入口，请联系管理员。',
     notConfiguredTitle: '充值/订阅链接未配置',
-    notConfiguredDesc: '管理员已开启入口，但尚未配置充值/订阅链接，请联系管理员。'
+    notConfiguredDesc: '管理员已开启入口，但尚未配置充值/订阅链接，请联系管理员。',
+    title: '订阅购买',
+    heading: '选择适合你的套餐',
+    description: '按套餐购买订阅分组，页面只展示当前站点已上架的动态套餐。',
+    phaseOneNotice: '易支付下单将在下一阶段接入，本阶段先确认套餐展示效果。',
+    subscriptionBannerTitle: '订阅套餐',
+    subscriptionBannerDesc:
+      '按周期提供固定额度与权益，预算清晰可预期，适合编程、OpenClaw 等持续调用；与按量计费的「用多少充多少」互补。',
+    subscriptionBannerBadge: '包期定额',
+    failedToLoadProducts: '加载可购买套餐失败',
+    failedToCreateOrder: '创建订单失败',
+    emptyProducts: '当前暂无可直接购买的套餐，欢迎通过定制版联系咨询。',
+    notEnabledTitle: '该功能未开启',
+    notEnabledDesc: '管理员暂未开启购买入口，请联系管理员。',
+    dialog: {
+      title: '购买订阅套餐',
+      subtitle: '确认套餐详情后，选择支付方式完成下单。',
+      openCta: '立即订阅',
+      submit: '立即支付',
+      paymentLabel: '选择支付方式：',
+      selectPlaceholder: '请选择支付方式',
+      validityUnitDays: '天',
+      notAvailable: '暂未提供',
+      resetPeriod: {
+        day: '每天',
+        week: '每周',
+        month: '每月'
+      },
+      fields: {
+        name: '套餐名称：',
+        validity: '有效期：',
+        resetPeriod: '重置周期：',
+        dailyQuota: '每日额度：',
+        benefits: '套餐权益：',
+        total: '应付金额：'
+      }
+    },
+    methods: {
+      alipay: '支付宝',
+      wechat: '微信支付',
+      points: '积分兑换'
+    },
+    points: {
+      available: '可用积分:',
+      enough: '兑换需 {points} 积分，可直接兑换',
+      short: '兑换需 {required} 积分，还差 {short} 积分',
+      exchangeSuccess: '积分兑换成功',
+      tooltipUsage: '积分可在订阅购买时直接兑换套餐，按 1 积分 = 1 元使用。',
+      tooltipSource: '邀请好友注册并在其完成首单后，您可获得该订单 20% 的积分奖励。'
+    },
+    period: {
+      day: '/天',
+      week: '/周',
+      month: '/月',
+      quarter: '/季',
+      year: '/年',
+      days: '/{days}天'
+    },
+    badges: {
+      popular: '最受欢迎',
+      enterprise: '企业版'
+    },
+    custom: {
+      title: 'Custom',
+      heading: '详情咨询',
+      featureOne: '支持定制化 SLA',
+      featureTwo: '支持定制化时长和额度',
+      featureThree: '专属技术支持',
+      cta: '邮件咨询详情'
+    }
   },
 
   // Custom Page (iframe embed)
@@ -643,3 +708,4 @@ export default {
   },
 
 }
+

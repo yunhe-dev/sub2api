@@ -86,6 +86,7 @@ export interface User {
   wechat_bound?: boolean
   role: 'admin' | 'user' // User role for authorization
   balance: number // User balance for API usage
+  points_balance?: number // Referral/purchase points available for plan exchange
   frozen_balance?: number // Balance currently held by async batch jobs
   concurrency: number // Allowed concurrent requests
   rpm_limit?: number // User-level RPM cap (0 = unlimited); effective as fallback when group has no rpm_limit
@@ -187,6 +188,15 @@ export interface LoginAgreementDocument {
   content_md: string
 }
 
+export interface PayGoPresetPackage {
+  package_key: string
+  quota_usd: number
+  price_cny: number
+  first_purchase_only: boolean
+  badge_text: string
+  description: string
+}
+
 export interface PublicSettings {
   registration_enabled: boolean
   email_verify_enabled: boolean
@@ -211,6 +221,29 @@ export interface PublicSettings {
   doc_url: string
   home_content: string
   hide_ccs_import_button: boolean
+  purchase_subscription_enabled?: boolean
+  purchase_subscription_url?: string
+  purchase_subscription_title?: string
+  purchase_subscription_description?: string
+  purchase_subscription_badge_text?: string
+  paygo_enabled?: boolean
+  paygo_title?: string
+  paygo_description?: string
+  paygo_badge_text?: string
+  paygo_notice_title?: string
+  paygo_notice_description?: string
+  paygo_preset_packages?: PayGoPresetPackage[]
+  paygo_rate_rmb_to_usd?: number
+  paygo_min_amount_cny?: number
+  paygo_preset_amounts_cny?: number[]
+  paygo_slider_min_amount_cny?: number
+  paygo_slider_max_amount_cny?: number
+  paygo_slider_step_amount_cny?: number
+  paygo_token_per_usd_million?: number
+  paygo_price_details_url?: string
+  epay_enabled?: boolean
+  epay_alipay_enabled?: boolean
+  epay_wxpay_enabled?: boolean
   payment_enabled: boolean
   risk_control_enabled: boolean
   table_default_page_size: number
@@ -272,6 +305,45 @@ export interface Subscription {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export interface PurchaseProduct {
+  group_id: number
+  product_type?: 'subscription' | 'paygo'
+  name: string
+  description: string
+  default_validity_days: number
+  purchase_price_cny: number
+  original_price_cny: number
+  daily_limit_usd: number | null
+  weekly_limit_usd: number | null
+  monthly_limit_usd: number | null
+  marketing_label: string
+  promo_active: boolean
+  promo_ends_at: string | null
+  promo_label: string
+  sort_order: number
+}
+
+export interface UpgradeQuote {
+  eligible: boolean
+  source_subscription_id: number
+  source_group_id: number
+  target_group_id: number
+  current_expires_at: string
+  remaining_days: number
+  period_seconds: number
+  remaining_seconds: number
+  remaining_ratio: number
+  source_price_cny: number
+  target_price_cny: number
+  price_diff_cny: number
+  service_fee_cny: number
+  total_amount_cny: number
+  formula_text: string
+  source_group_name: string
+  target_group_name: string
+  migrated_api_key_count: number
 }
 
 export interface CreateSubscriptionRequest {
